@@ -1,6 +1,4 @@
-
 use rand::{thread_rng, Rng};
-
 
 pub struct Grid {
     width: u64,
@@ -8,7 +6,6 @@ pub struct Grid {
     current_location: usize,
     locations: [Vec<bool>; 2],
 }
-
 
 impl Grid {
     pub fn create(width: u64, height: u64) -> Self {
@@ -40,12 +37,16 @@ impl Grid {
     fn count_neighbours(&self, x: u64, y: u64) -> u64 {
         let mut count: u64 = 0;
         let range: [i64; 3] = [-1, 0, 1];
-        for x_mod in range  {
+        for x_mod in range {
             let x_ref: i64 = x as i64 + x_mod;
             for y_mod in range {
                 let y_ref = y as i64 + y_mod;
-                if (x_mod == 0 && y_mod == 0) || x_ref < 0 || y_ref < 0 ||
-                    y_ref as u64 >= self.height || x_ref as u64 >= self.width {
+                if (x_mod == 0 && y_mod == 0)
+                    || x_ref < 0
+                    || y_ref < 0
+                    || y_ref as u64 >= self.height
+                    || x_ref as u64 >= self.width
+                {
                     continue;
                 }
 
@@ -86,6 +87,4 @@ impl Grid {
         }
         self.flip();
     }
-
 }
-
