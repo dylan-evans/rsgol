@@ -5,7 +5,7 @@ fn main() {
     grid.randomise();
 
     for _ in 0..10 {
-        let cell = grid.get(1, 1);
+        let cell = grid.get(1usize, 1usize);
         if cell {
             println!("Alive");
         } else {

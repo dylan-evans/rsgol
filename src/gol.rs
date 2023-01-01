@@ -1,16 +1,16 @@
 use rand::{thread_rng, Rng};
 
 pub struct Grid {
-    width: u64,
-    height: u64,
+    width: usize,
+    height: usize,
     current_location: usize,
     locations: [Vec<bool>; 2],
 }
 
 impl Grid {
-    pub fn create(width: u64, height: u64) -> Self {
-        let mut locs: Vec<bool> = Vec::with_capacity((width * height) as usize);
-        locs.resize((width * height) as usize, false);
+    pub fn create(width: usize, height: usize) -> Self {
+        let mut locs: Vec<bool> = Vec::with_capacity(width * height);
+        locs.resize(width * height, false);
         Grid {
             width,
             height,
@@ -27,15 +27,15 @@ impl Grid {
         self.current_location = self.next_location();
     }
 
-    fn get_offset(&self, x: u64, y: u64) -> usize {
+    fn get_offset(&self, x: usize, y: usize) -> usize {
         if x > self.width || y > self.height {
             panic!("Value out of range");
         }
-        return ((y * self.width) + x) as usize;
+        return (y * self.width) + x;
     }
 
-    fn count_neighbours(&self, x: u64, y: u64) -> u64 {
-        let mut count: u64 = 0;
+    fn count_neighbours(&self, x: usize, y: usize) -> usize {
+        let mut count: usize = 0;
         let range: [i64; 3] = [-1, 0, 1];
         for x_mod in range {
             let x_ref: i64 = x as i64 + x_mod;
@@ -44,13 +44,13 @@ impl Grid {
                 if (x_mod == 0 && y_mod == 0)
                     || x_ref < 0
                     || y_ref < 0
-                    || y_ref as u64 >= self.height
-                    || x_ref as u64 >= self.width
+                    || y_ref as usize >= self.height
+                    || x_ref as usize >= self.width
                 {
                     continue;
                 }
 
-                if self.get(x_ref as u64, y_ref as u64) {
+                if self.get(x_ref as usize, y_ref as usize) {
                     count += 1;
                 }
             }
@@ -58,16 +58,16 @@ impl Grid {
         return count;
     }
 
-    fn get_next_value(&self, x: u64, y: u64) -> bool {
+    fn get_next_value(&self, x: usize, y: usize) -> bool {
         let neighbours = self.count_neighbours(x, y);
         (self.get(x, y) && neighbours == 2) || neighbours == 3
     }
 
-    pub fn get(&self, x: u64, y: u64) -> bool {
+    pub fn get(&self, x: usize, y: usize) -> bool {
         self.locations[self.current_location][self.get_offset(x, y)]
     }
 
-    pub fn set(&mut self, x: u64, y: u64, val: bool) {
+    pub fn set(&mut self, x: usize, y: usize, val: bool) {
         let ofs = self.get_offset(x, y);
         self.locations[self.next_location()][ofs] = val;
     }
@@ -75,7 +75,7 @@ impl Grid {
     pub fn randomise(&mut self) {
         let mut rng = thread_rng();
         for idx in 0..(self.width * self.height) {
-            self.locations[self.current_location][idx as usize] = rng.gen_bool(0.5);
+            self.locations[self.current_location][idx] = rng.gen_bool(0.5);
         }
     }
 
