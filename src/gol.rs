@@ -102,3 +102,37 @@ impl Grid {
         self.flip();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn setup_blinker() -> Grid {
+        let mut grid = Grid::create(3, 3);
+        grid.set(1, 0, true);
+        grid.set(1, 1, true);
+        grid.set(1, 2, true);
+        grid.flip();
+        return grid;
+    }
+
+    #[test]
+    fn simple_blinker() {
+        let grid = setup_blinker();
+        assert!(grid.get(1, 0));
+        assert!(grid.get(1, 1));
+        assert!(grid.get(1, 2));
+        
+    }
+
+    #[test]
+    fn gol_blinker() {
+        let mut grid = setup_blinker();
+        grid.step();
+        assert!(!grid.get(1, 0));
+        assert!(!grid.get(1, 2));
+        assert!(grid.get(0, 1));
+        assert!(grid.get(1, 1));
+        assert!(grid.get(2, 1));
+    }
+}
