@@ -23,10 +23,6 @@ impl Grid {
         (self.current_location + 1) % 1
     }
 
-    fn flip(&mut self) {
-        self.current_location = self.next_location();
-    }
-
     fn get_offset(&self, x: usize, y: usize) -> usize {
         if x > self.width || y > self.height {
             panic!("Value out of range");
@@ -77,6 +73,10 @@ impl Grid {
         for idx in 0..(self.width * self.height) {
             self.locations[self.current_location][idx] = rng.gen_bool(0.5);
         }
+    }
+
+    pub fn flip(&mut self) {
+        self.current_location = self.next_location();
     }
 
     pub fn step(&mut self) {
