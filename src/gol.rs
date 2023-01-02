@@ -1,10 +1,15 @@
 use rand::{thread_rng, Rng};
 
+/// Main GOL area.
 pub struct Grid {
+    /// Horizontal size
     width: usize,
+    /// Vertical size
     height: usize,
-    current_location: usize,
+    /// An array of 2 vectors containing the living state of each cell within the `Grid`
     locations: [Vec<bool>; 2],
+    /// Indicates the current "read" vector in locations.
+    current_location: usize,
 }
 
 impl Grid {
@@ -19,10 +24,12 @@ impl Grid {
         }
     }
 
+    /// Returns the index of the next location vector
     fn next_location(&self) -> usize {
         (self.current_location + 1) % 1
     }
 
+    /// Convert X,Y coordinates into a vector index
     fn get_offset(&self, x: usize, y: usize) -> usize {
         if x > self.width || y > self.height {
             panic!("Value out of range");
@@ -30,6 +37,7 @@ impl Grid {
         return (y * self.width) + x;
     }
 
+    /// Count the number of adjacent living cells
     fn count_neighbours(&self, x: usize, y: usize) -> usize {
         let mut count: usize = 0;
         let range: [i64; 3] = [-1, 0, 1];
@@ -54,15 +62,18 @@ impl Grid {
         return count;
     }
 
-    fn get_next_value(&self, x: usize, y: usize) -> bool {
+    /// Apply the GOL rules to the specified cell and return the next state.
+    fn calculate_next_cell_state(&self, x: usize, y: usize) -> bool {
         let neighbours = self.count_neighbours(x, y);
         (self.get(x, y) && neighbours == 2) || neighbours == 3
     }
 
+    /// Get the state of the specified cell in the current location vector.
     pub fn get(&self, x: usize, y: usize) -> bool {
         self.locations[self.current_location][self.get_offset(x, y)]
     }
 
+    /// Set the state of the specified cell in the next location vector.
     pub fn set(&mut self, x: usize, y: usize, val: bool) {
         let ofs = self.get_offset(x, y);
         self.locations[self.next_location()][ofs] = val;
@@ -75,14 +86,17 @@ impl Grid {
         }
     }
 
+    /// Swaps the location vectors so the next becomes current.
     pub fn flip(&mut self) {
         self.current_location = self.next_location();
     }
 
+    /// Perform a GOL step, calculating all values in the next location and 
+    /// flipping the locations.
     pub fn step(&mut self) {
         for x in 0..self.width {
             for y in 0..self.height {
-                self.set(x, y, self.get_next_value(x, y));
+                self.set(x, y, self.calculate_next_cell_state(x, y));
             }
         }
         self.flip();
