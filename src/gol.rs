@@ -26,7 +26,7 @@ impl Grid {
 
     /// Returns the index of the next location vector
     fn next_location(&self) -> usize {
-        (self.current_location + 1) % 1
+        (self.current_location + 1) % 2 
     }
 
     /// Convert X,Y coordinates into a vector index
@@ -46,15 +46,17 @@ impl Grid {
             for y_mod in range {
                 let y_ref = y as i64 + y_mod;
                 if (x_mod == 0 && y_mod == 0)
+                    || (x_ref as usize == x && y_ref as usize == y)
                     || x_ref < 0
+                    || x_ref as usize >= self.width
                     || y_ref < 0
                     || y_ref as usize >= self.height
-                    || x_ref as usize >= self.width
                 {
                     continue;
                 }
 
                 if self.get(x_ref as usize, y_ref as usize) {
+                    println!("  ({x}, {y}) -> ({x_ref}, {y_ref})");
                     count += 1;
                 }
             }
@@ -65,7 +67,9 @@ impl Grid {
     /// Apply the GOL rules to the specified cell and return the next state.
     fn calculate_next_cell_state(&self, x: usize, y: usize) -> bool {
         let neighbours = self.count_neighbours(x, y);
-        (self.get(x, y) && neighbours == 2) || neighbours == 3
+        let alive = self.get(x, y);
+        println!("calc {x}, {y} has {neighbours} neighbours {alive}");
+        neighbours == 3 || (self.get(x, y) && neighbours == 2)
     }
 
     /// Get the state of the specified cell in the current location vector.
