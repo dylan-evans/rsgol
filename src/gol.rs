@@ -1,8 +1,8 @@
 use rand::{thread_rng, Rng};
 
 pub struct Grid {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     current_location: usize,
     locations: [Vec<bool>; 2],
 }
