@@ -25,7 +25,7 @@ fn main() {
 
     ::std::thread::sleep(::std::time::Duration::from_millis(500));
 
-    'gol_loop: for _ in 0..2 {
+    'gol_loop: loop {
         let (width, height) = canvas.output_size().unwrap();
         canvas.set_scale(width as f32 / grid.width as f32, height as f32 / grid.height as f32).unwrap();
         canvas.set_draw_color(Color::RGB(i % 255, 0, 0));
@@ -49,7 +49,7 @@ fn main() {
             }
         }
         canvas.present();
-        ::std::thread::sleep(::std::time::Duration::from_millis(2000));
+        ::std::thread::sleep(::std::time::Duration::from_millis(500));
         println!("----");
         grid.step();
     }
