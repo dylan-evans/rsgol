@@ -9,7 +9,6 @@ use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::EventPump;
 
-
 pub struct GOLGridRenderer {
     canvas: Canvas<Window>,
     event_pump: EventPump,
@@ -66,5 +65,3 @@ impl GOLGridRenderer {
         return false;
     }
 }
-
-

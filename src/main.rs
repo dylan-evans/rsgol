@@ -1,4 +1,3 @@
-
 mod gol;
 mod renderer;
 
