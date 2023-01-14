@@ -3,11 +3,18 @@ extern crate sdl2;
 use crate::gol::Grid;
 
 use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::render::Canvas;
-use sdl2::video::Window;
+use sdl2::video::{FullscreenType, Window};
 use sdl2::EventPump;
+
+pub enum UIAction {
+    Nothing,
+    Quit,
+    Reset,
+}
 
 pub struct GOLGridRenderer {
     canvas: Canvas<Window>,
@@ -15,15 +22,19 @@ pub struct GOLGridRenderer {
 }
 
 impl GOLGridRenderer {
-    pub fn create(width: u32, height: u32) -> Self {
+    pub fn create(width: u32, height: u32, fullscreen: bool) -> Self {
         let sdl_ctx = sdl2::init().unwrap();
         let video = sdl_ctx.video().unwrap();
-        let window = video
+        let mut window = video
             .window("GOL", width, height)
+            .opengl()
             .resizable()
             .position_centered()
             .build()
             .unwrap();
+        if fullscreen {
+            window.set_fullscreen(FullscreenType::Desktop).unwrap();
+        }
         let canvas = window.into_canvas().build().unwrap();
         let event_pump = sdl_ctx.event_pump().unwrap();
         return GOLGridRenderer { canvas, event_pump };
@@ -52,16 +63,34 @@ impl GOLGridRenderer {
         self.canvas.present();
     }
 
-    pub fn quit(&mut self) -> bool {
-        for event in self.event_pump.poll_iter() {
-            match event {
-                Event::Quit { .. } | Event::KeyDown { .. } => {
-                    return true;
-                }
-                _ => {}
+    pub fn toggle_fullscreen(&mut self) {
+        let window = self.canvas.window_mut();
+        if window.fullscreen_state() == FullscreenType::Off {
+            window.set_fullscreen(FullscreenType::Desktop).unwrap();
+        } else {
+            window.set_fullscreen(FullscreenType::Off).unwrap();
+        }
+    }
+
+    pub fn get_action(&mut self) -> UIAction {
+        loop {
+            match self.event_pump.poll_event() {
+                Some(event) => {
+                    match event {
+                        Event::KeyDown {keycode: Some(keycode), ..} => {
+                            match keycode {
+                                Keycode::Escape | Keycode::Q => return UIAction::Quit,
+                                Keycode::R => return UIAction::Reset,
+                                Keycode::F => self.toggle_fullscreen(),
+                                _ => {}
+                            }
+                        },
+                        Event::Quit {..} => return UIAction::Quit,
+                        _ => {},
+                    }
+                },
+                None => return UIAction::Nothing,
             }
         }
-
-        return false;
     }
 }
