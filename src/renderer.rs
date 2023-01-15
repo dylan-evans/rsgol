@@ -10,6 +10,7 @@ use sdl2::render::Canvas;
 use sdl2::video::{FullscreenType, Window};
 use sdl2::EventPump;
 
+#[derive(PartialEq)]
 pub enum UIAction {
     Nothing,
     Quit,
@@ -76,21 +77,34 @@ impl GOLGridRenderer {
         loop {
             match self.event_pump.poll_event() {
                 Some(event) => {
-                    match event {
-                        Event::KeyDown {keycode: Some(keycode), ..} => {
-                            match keycode {
-                                Keycode::Escape | Keycode::Q => return UIAction::Quit,
-                                Keycode::R => return UIAction::Reset,
-                                Keycode::F => self.toggle_fullscreen(),
-                                _ => {}
-                            }
-                        },
-                        Event::Quit {..} => return UIAction::Quit,
-                        _ => {},
+                    let action = self.interpret_event(event);
+                    if action != UIAction::Nothing {
+                        return action;
                     }
                 },
                 None => return UIAction::Nothing,
             }
         }
+    }
+
+    #[inline(always)]
+    fn interpret_event(&mut self, event: Event) -> UIAction {
+        return match event {
+            Event::KeyDown {keycode: Some(keycode), ..} => self.interpret_keycode(keycode),
+            Event::Quit {..} => UIAction::Quit,
+            _ => UIAction::Nothing
+        }
+    }
+
+    #[inline(always)]
+    fn interpret_keycode(&mut self, keycode: Keycode) -> UIAction {
+        match keycode {
+            Keycode::Escape | Keycode::Q => return UIAction::Quit,
+            Keycode::R => return UIAction::Reset,
+            Keycode::F => self.toggle_fullscreen(),
+            _ => {}
+        }
+
+        return UIAction::Nothing;
     }
 }
