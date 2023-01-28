@@ -1,7 +1,19 @@
 use rand::{thread_rng, Rng};
 
+
+pub trait Grid {
+    fn create(width: usize, height: usize) -> Self where Self: Sized;
+    fn get(&self, x: usize, y: usize) -> bool;
+    fn set(&mut self, x: usize, y: usize, val: bool);
+    fn randomise(&mut self);
+    fn flip(&mut self);
+    fn step(&mut self);
+    fn get_width(&self) -> usize;
+    fn get_height(&self) -> usize;
+}
+
 /// Main GOL area.
-pub struct Grid {
+pub struct BoolGrid {
     /// Horizontal size
     pub width: usize,
     /// Vertical size
@@ -12,18 +24,7 @@ pub struct Grid {
     current_location: usize,
 }
 
-impl Grid {
-    pub fn create(width: usize, height: usize) -> Self {
-        let mut locs: Vec<bool> = Vec::with_capacity(width * height);
-        locs.resize(width * height, false);
-        Grid {
-            width,
-            height,
-            current_location: 0,
-            locations: [locs.clone(), locs],
-        }
-    }
-
+impl BoolGrid {
     /// Returns the index of the next location vector
     fn next_location(&self) -> usize {
         (self.current_location + 1) % 2
@@ -68,19 +69,32 @@ impl Grid {
         let neighbours = self.count_neighbours(x, y);
         neighbours == 3 || (self.get(x, y) && neighbours == 2)
     }
+}
+
+impl Grid for BoolGrid {
+    fn create(width: usize, height: usize) -> Self where Self: Sized {
+        let mut locs: Vec<bool> = Vec::with_capacity(width * height);
+        locs.resize(width * height, false);
+        BoolGrid {
+            width,
+            height,
+            current_location: 0,
+            locations: [locs.clone(), locs],
+        }
+    }
 
     /// Get the state of the specified cell in the current location vector.
-    pub fn get(&self, x: usize, y: usize) -> bool {
+    fn get(&self, x: usize, y: usize) -> bool {
         self.locations[self.current_location][self.get_offset(x, y)]
     }
 
     /// Set the state of the specified cell in the next location vector.
-    pub fn set(&mut self, x: usize, y: usize, val: bool) {
+    fn set(&mut self, x: usize, y: usize, val: bool) {
         let ofs = self.get_offset(x, y);
         self.locations[self.next_location()][ofs] = val;
     }
 
-    pub fn randomise(&mut self) {
+    fn randomise(&mut self) {
         let mut rng = thread_rng();
         for idx in 0..(self.width * self.height) {
             self.locations[self.current_location][idx] = rng.gen_bool(0.5);
@@ -88,19 +102,27 @@ impl Grid {
     }
 
     /// Swaps the location vectors so the next becomes current.
-    pub fn flip(&mut self) {
+    fn flip(&mut self) {
         self.current_location = self.next_location();
     }
 
     /// Perform a GOL step, calculating all values in the next location and
     /// flipping the locations.
-    pub fn step(&mut self) {
+    fn step(&mut self) {
         for x in 0..self.width {
             for y in 0..self.height {
                 self.set(x, y, self.calculate_next_cell_state(x, y));
             }
         }
         self.flip();
+    }
+
+    fn get_width(&self) -> usize {
+        self.width
+    }
+
+    fn get_height(&self) -> usize {
+        self.height
     }
 }
 
@@ -109,7 +131,7 @@ mod tests {
     use super::*;
 
     fn setup_blinker() -> Grid {
-        let mut grid = Grid::create(3, 3);
+        let mut grid = BoolGrid::create(3, 3);
         grid.set(1, 0, true);
         grid.set(1, 1, true);
         grid.set(1, 2, true);

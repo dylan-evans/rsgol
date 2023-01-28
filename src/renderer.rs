@@ -41,19 +41,19 @@ impl GOLGridRenderer {
         return GOLGridRenderer { canvas, event_pump };
     }
 
-    pub fn render_grid(&mut self, grid: &Grid) {
+    pub fn render_grid(&mut self, grid: &dyn Grid) {
         self.canvas.set_draw_color(Color::RGB(64, 0, 0));
         let (width, height) = self.canvas.output_size().unwrap();
         self.canvas
             .set_scale(
-                width as f32 / grid.width as f32,
-                height as f32 / grid.height as f32,
+                width as f32 / grid.get_width() as f32,
+                height as f32 / grid.get_height() as f32,
             )
             .unwrap();
         self.canvas.clear();
         self.canvas.set_draw_color(Color::RGB(255, 255, 255));
-        for x in 0..grid.width {
-            for y in 0..grid.height {
+        for x in 0..grid.get_width() {
+            for y in 0..grid.get_height() {
                 if grid.get(x, y) {
                     self.canvas
                         .draw_point(Point::new(x as i32, y as i32))

@@ -3,6 +3,7 @@ mod renderer;
 
 use clap::Parser;
 use crate::renderer::*;
+use crate::gol::*;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -19,7 +20,7 @@ fn main() {
     let args = Args::parse();
     let mut renderer = GOLGridRenderer::create(640, 480, args.fullscreen);
 
-    let mut grid = gol::Grid::create(args.width, args.height);
+    let mut grid = gol::BoolGrid::create(args.width, args.height);
     grid.randomise();
 
     loop {
